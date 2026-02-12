@@ -1,14 +1,110 @@
 version: 2.1
 
 jobs:
-  sayhello:
-    description: A job that says Hello
-    machine: true
-    steps:
-      - run: echo "Hello World!"
 
+  checkout_and_unit_test:
+    docker:
+      - image: cimg/node:18.0
+    steps:
+      - checkout
+      - run: echo "Running unit tests..."
+      - run: sleep 5
+
+  deploy_backend:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: echo "Deploying backend..."
+      - run: sleep 5
+
+  integration_tests_backend:
+    docker:
+      - image: cimg/node:18.0
+    steps:
+      - checkout
+      - run: echo "Running integration tests..."
+      - run: sleep 5
+
+  deploy_staging:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: echo "Deploying to staging..."
+      - run: sleep 5
+
+  acceptance_tests_1:
+    docker:
+      - image: cimg/node:18.0
+    steps:
+      - checkout
+      - run: echo "Acceptance tests 1"
+      - run: sleep 5
+
+  acceptance_tests_2:
+    docker:
+      - image: cimg/node:18.0
+    steps:
+      - checkout
+      - run: echo "Acceptance tests 2"
+      - run: sleep 5
+
+  acceptance_tests_3:
+    docker:
+      - image: cimg/node:18.0
+    steps:
+      - checkout
+      - run: echo "Acceptance tests 3"
+      - run: sleep 5
+
+  acceptance_tests_4:
+    docker:
+      - image: cimg/node:18.0
+    steps:
+      - checkout
+      - run: echo "Acceptance tests 4"
+      - run: sleep 5
+
+  deploy_production:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: echo "Deploying to production..."
+      - run: sleep 5
 
 workflows:
-  monWorkflow:
+  version: 2
+  pipeline_workflow:
     jobs:
-      - sayhello
+      - checkout_and_unit_test
+      - deploy_backend:
+          requires:
+            - checkout_and_unit_test
+      - integration_tests_backend:
+          requires:
+            - deploy_backend
+      - deploy_staging:
+          requires:
+            - integration_tests_backend
+
+      - acceptance_tests_1:
+          requires:
+            - deploy_staging
+      - acceptance_tests_2:
+          requires:
+            - deploy_staging
+      - acceptance_tests_3:
+          requires:
+            - deploy_staging
+      - acceptance_tests_4:
+          requires:
+            - deploy_staging
+
+      - deploy_production:
+          requires:
+            - acceptance_tests_1
+            - acceptance_tests_2
+            - acceptance_tests_3
+            - acceptance_tests_4
